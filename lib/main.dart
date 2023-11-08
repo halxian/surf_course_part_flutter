@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:surf_app_flutter/app_colors.dart';
-import 'package:surf_app_flutter/control_button_panel.dart';
-import 'package:surf_app_flutter/mock_data.dart';
-import 'package:surf_app_flutter/person_data.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,88 +16,87 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class TestScreen extends StatelessWidget {
+class TestScreen extends StatefulWidget {
   const TestScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TestScreen> createState() => _TestScreenState();
+}
+
+class _TestScreenState extends State<TestScreen> {
+  int count = 0;
+
+  int countIncrement = 0;
+  int countDecrement = 0;
+
+  void increment() {
+    setState(() {
+      count++;
+      countIncrement++;
+    });
+  }
+
+  void decrement() {
+    setState(() {
+      countDecrement++;
+      if (count > 0) {
+        count--;
+      } else {
+        return;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: TestAppColors.background,
-      appBar: AppBar(
-        elevation: 0,
-        title: const Text(
-          TestAppStrings.appBar,
-          style: TextStyle(color: TestAppColors.text),
-        ),
-        backgroundColor: TestAppColors.background,
-        leading: const Icon(
-          Icons.arrow_back,
-          color: TestAppColors.accent,
-        ),
-      ),
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
-            MainPersonalDataSection(
-              imgPath: TestAppMocks.avatarPath,
-              name: TestAppMocks.name,
-              status: TestAppMocks.status,
+            Text(
+              '$count',
+              style: const TextStyle(
+                fontSize: 24,
+              ),
             ),
-            SizedBox(height: 20),
-            ControlButtonsPanel(),
           ],
         ),
       ),
-      bottomNavigationBar: const CustomNavBar(
-        background: TestAppColors.secondary,
-      ),
-    );
-  }
-}
-
-class CustomNavBar extends StatelessWidget {
-  const CustomNavBar({
-    Key? key,
-    required this.background,
-  }) : super(key: key);
-
-  final Color background;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: background,
-        boxShadow: [
-          BoxShadow(
-            color: TestAppColors.shadow,
-            offset: const Offset(0, -2),
-            blurRadius: 4,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: increment,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.add,
+                ),
+                Text('$countIncrement')
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          FloatingActionButton(
+            onPressed: decrement,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.remove,
+                ),
+                Text('$countDecrement')
+              ],
+            ),
           )
         ],
       ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Icons.search,
-            Icons.home,
-            Icons.settings,
-            Icons.logout,
-          ]
-              .map(
-                (e) => Expanded(
-                  child: Icon(
-                    e,
-                    color: TestAppColors.accent,
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }
