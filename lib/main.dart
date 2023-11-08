@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -5,98 +7,103 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: TestScreen(),
-      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: TestScreen(),
+      ),
     );
   }
 }
 
 class TestScreen extends StatefulWidget {
-  const TestScreen({Key? key}) : super(key: key);
+  const TestScreen({super.key});
 
   @override
-  State<TestScreen> createState() => _TestScreenState();
+  _TestScreenState createState() => _TestScreenState();
 }
 
-class _TestScreenState extends State<TestScreen> {
-  int count = 0;
+class _TestScreenState extends State<TestScreen>
+    with SingleTickerProviderStateMixin {
+  Offset position = const Offset(0.5, 0.5);
+  Color color = Colors.red;
 
-  int countIncrement = 0;
-  int countDecrement = 0;
+  late AnimationController _controller;
 
-  void increment() {
-    setState(() {
-      count++;
-      countIncrement++;
-    });
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.elasticOut,
+  );
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    super.initState();
   }
 
-  void decrement() {
-    setState(() {
-      countDecrement++;
-      if (count > 0) {
-        count--;
-      } else {
-        return;
-      }
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$count',
-              style: const TextStyle(
-                fontSize: 24,
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          left: position.dx,
+          top: position.dy,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                position = Offset(position.dx + details.delta.dx,
+                    position.dy + details.delta.dy);
+              });
+            },
+            onTap: () {
+              setState(() {
+                color = color == Colors.red ? Colors.blue : Colors.red;
+              });
+            },
+            onLongPress: () {
+              _controller.animateTo(Random().nextDouble());
+            },
+            child: RotationTransition(
+              turns: _animation,
+              child: Container(
+                width: 100.0,
+                height: 100.0,
+                color: color,
               ),
             ),
-          ],
+          ),
         ),
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: increment,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.add,
-                ),
-                Text('$countIncrement')
-              ],
-            ),
+        Positioned.fill(
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                position = Offset(position.dx + details.delta.dx,
+                    position.dy + details.delta.dy);
+              });
+            },
+            onTap: () {
+              setState(() {
+                color = color == Colors.red ? Colors.blue : Colors.red;
+              });
+            },
+            onLongPress: () {
+              _controller.animateTo(Random().nextDouble());
+            },
           ),
-          const SizedBox(
-            width: 10,
-          ),
-          FloatingActionButton(
-            onPressed: decrement,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.remove,
-                ),
-                Text('$countDecrement')
-              ],
-            ),
-          )
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        ),
+      ],
     );
   }
 }
